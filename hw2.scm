@@ -47,12 +47,15 @@
 )
 
 (mydisplay (quadratic 1 0 0))
-(mydisplay (quadratic 1 1 0)) ; changed a from 0 to 1 - need to handle when a equals zero
+(mydisplay (quadratic 0 1 0)) ; changed a from 0 to 1 - need to handle when a equals zero
 (mydisplay (quadratic 3 4 2))
 
 ; Return a list with the items in reverse order
 (define (reverse lst)
-	lst
+	(cond
+		((NULL? lst) '())
+		(else (append (reverse (cdr lst)) (list (car lst))))
+	)
 )
 
 (mydisplay (reverse '(1 2 3 4)))
@@ -74,8 +77,25 @@
 ; in the list and the second is the largest in the list. 
 ; lst -- flat, contains numeric values, and length is >= 1.
 (define (minAndMax lst)
-	'()
+	(list (minList lst) (maxList lst))
 )
+
+(define (minList lst)
+	(cond
+		((= (length lst) 1) (car lst))
+		(else (min (car lst) (minList (cdr lst))))
+	)
+)
+
+(define (maxList lst) 
+	(cond
+		((= (length lst) 1) (car lst))
+		(else (max (car lst) (maxList (cdr lst))))
+	)
+)
+
+(mydisplay (minAndMax '(1 2 3 4)))
+(mydisplay (minAndMax '(4 8 2 3)))
 
 ; Returns a list of three numbers (numNeg numZero numPos),
 ; where these numbers correspond to the number of negative
