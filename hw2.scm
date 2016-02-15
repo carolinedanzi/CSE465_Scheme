@@ -1,3 +1,9 @@
+; Caroline Danzi
+; CSE 465 Comparative Programming Languages
+; Dr. Zmuda
+; This program creates some functions in scheme and
+; prints out the results.  
+
 ; zipcodes.scm contains all the US zipcodes.
 ; You should not modify this file. Your code
 ; should work for other instances of this file.
@@ -13,11 +19,35 @@
 ; Returns the roots of the quadratic formula, given
 ; ax^2+bx+c=0
 (define (quadratic a b c)
-	'(0 0)
+	(cond 
+		((= a 0) "error: cannot divide by zero")
+		(else 
+		(LET (
+		(root_part_over_2a 
+			(/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
+		(minus_b_over_2a (/ (- b 0) (* 2 a )))
+	)
+	(list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a))))
+	)
+	;(let (
+	;	(bOver2a (/ (- 0 b) (* 2 a)))
+	;	(sqrtOver2a (/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
+	;)
+	
+   ; '((/ (+ (- 0 b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a)) 
+	;(/ (- (- 0 b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a)))
+	;(list (+ bOver2a sqrtOver2a) (- bOver2a sqrtOver2a))
+	;)
+	; (LET (
+		; (root_part_over_2a 
+			; (/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
+		; (minus_b_over_2a (/ (- b 0) (* 2 a )))
+	; )
+	; (list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a)))
 )
 
 (mydisplay (quadratic 1 0 0))
-(mydisplay (quadratic 0 1 0))
+(mydisplay (quadratic 1 1 0)) ; changed a from 0 to 1 - need to handle when a equals zero
 (mydisplay (quadratic 3 4 2))
 
 ; Return a list with the items in reverse order
