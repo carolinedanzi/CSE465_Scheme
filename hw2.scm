@@ -105,15 +105,21 @@
 ; awarded for doing this with just one pass through the list.
 ; lst -- flat list containing numeric values, and length is >= 1.
 (define (posneg lst)
-	; as you look through the list, see if the current head of the list
-	; is positive, negative, or zero and add one to the appropriate element
+	; Use tail recursive helper
+	(posnegHelper lst 0 0 0)
+)
+
+; Uses tail recursion
+(define (posnegHelper lst numNeg numZero numPos)
 	(cond
-		((NULL? lst) '(0 0 0))
-		; first element is negative
-		;((< (car lst) 0) (list (+ 1 (posneg (cdr lst))) (posNeg (cdr lst))))
-		; (list (1 + cdr lst) (cdr lst) )
+		((NULL? lst) (list numNeg numZero numPos))
+		; If the head of the list is negative
+		((< (car lst) 0) (posnegHelper (cdr lst) (+ 1 numNeg) numZero numPos))
+		; If the head of the list is zero
+		((= (car lst) 0) (posnegHelper (cdr lst) numNeg (+ 1 numZero) numPos))
+		; If the head of the list is positive
+		(else (posnegHelper (cdr lst) numNeg numZero (+ 1 numPos)))
 	)
-	'()
 )
 
 (mydisplay (posneg '(1 2 3 4 2 0 -2 3 23 -3)))
