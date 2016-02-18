@@ -174,7 +174,7 @@
 	; caddar zips = the third element in the first nested list, which is the state name
 	(cond
 		((NULL? zips) statesList)
-		((EQUAL? placeName (cadar zips)) (getStatesHelper placeName (cdr zips) (noDuplicateCons (caddar zips) statesList statesList)))
+		((EQUAL? placeName (cadar zips)) (getStatesHelper placeName (cdr zips) (addNoDups (caddar zips) statesList)))
 		(else (getStatesHelper placeName (cdr zips) statesList))
 	)
 )
@@ -182,11 +182,18 @@
 ; Add an element to the list if and only if the element does not
 ; already appear in the list
 ; TODO: Figure out why I currently need to pass in the original list
-(define (noDuplicateCons element lst origList)
+(define (addNoDups element lst)
+	(if (MEMBER? element lst)
+		lst
+		(append lst (list element))
+	)
+)
+
+(define (MEMBER? element lst)
 	(cond
-		((NULL? lst) (cons element origList))
-		((EQUAL? element (car lst)) origList)
-		(else (noDuplicateCons element (cdr lst) origList))
+		((NULL? lst) #f)
+		((EQUAL? element (car lst)) #t)
+		(else (MEMBER? element (cdr lst)))
 	)
 )
 
