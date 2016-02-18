@@ -22,12 +22,12 @@
 	(cond 
 		((= a 0) "error: cannot divide by zero")
 		(else 
-		(LET (
-		(root_part_over_2a 
-			(/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
-		(minus_b_over_2a (/ (- b 0) (* 2 a )))
-	)
-	(list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a))))
+			(LET (
+			(root_part_over_2a 
+				(/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
+			(minus_b_over_2a (/ (- b 0) (* 2 a )))
+			)
+		(list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a))))
 	)
 	;(let (
 	;	(bOver2a (/ (- 0 b) (* 2 a)))
@@ -47,7 +47,7 @@
 )
 
 (mydisplay (quadratic 1 0 0))
-(mydisplay (quadratic 0 1 0)) ; changed a from 0 to 1 - need to handle when a equals zero
+(mydisplay (quadratic 0 1 0)) 
 (mydisplay (quadratic 3 4 2))
 
 ; Return a list with the items in reverse order
@@ -80,6 +80,7 @@
 	(list (minList lst) (maxList lst))
 )
 
+; Finds the smallest numeric value in a flat list
 (define (minList lst)
 	(cond
 		((= (length lst) 1) (car lst))
@@ -87,6 +88,7 @@
 	)
 )
 
+; Finds the largest numeric value in a flat list
 (define (maxList lst) 
 	(cond
 		((= (length lst) 1) (car lst))
@@ -143,7 +145,12 @@
 ; zipcode -- 5 digit integer
 ; zips -- the zipcode DB
 (define (getZipcodeInfo zipcode zips)
-	'(99553 "Akutan" "AK" "Aleutians East" 54.143 -165.7854)
+	; caar zips gives the first element in the list at the head of the list,
+	; which in this case is the numeric zipcode
+	(if (= zipcode (caar zips))
+		(car zips)
+		(getZipcodeInfo zipcode (cdr zips))
+	)
 )
 
 ; Returns a list of all the states that contain the given place.
@@ -151,15 +158,47 @@
 ; placeName -- is the text corresponding to the name of the place
 ; zips -- the zipcode DB
 (define (getStatesThatContainThisPlace placeName zips)
-	'("AK")
+	(getStatesHelper placeName zips '())
+	; not tail-recursive
+	; (cond
+		; ((NULL? zips) '())
+		; ((EQUAL? placeName (cadar zips)) (cons (caddar zips) (getStatesThatContainThisPlace placeName (cdr zips)))) 
+		; (else (getStatesThatContainThisPlace placeName (cdr zips)))
+	; )
+)
+
+; Tail-recursive helper function
+; Also, this lists the states in reverse alphabetical order...is that an issue?
+(define (getStatesHelper placeName zips statesList)
+	; cadar zips = the second element in the first nested list, which is the place name
+	; caddar zips = the third element in the first nested list, which is the state name
+	(cond
+		((NULL? zips) statesList)
+		((EQUAL? placeName (cadar zips)) (getStatesHelper placeName (cdr zips) (noDuplicateCons (caddar zips) statesList statesList)))
+		(else (getStatesHelper placeName (cdr zips) statesList))
+	)
+)
+
+; Add an element to the list if and only if the element does not
+; already appear in the list
+; TODO: Figure out why I currently need to pass in the original list
+(define (noDuplicateCons element lst origList)
+	(cond
+		((NULL? lst) (cons element origList))
+		((EQUAL? element (car lst)) origList)
+		(else (noDuplicateCons element (cdr lst) origList))
+	)
 )
 
 ; Returns the state that contains the most unique zip codes
 ; Return the first state if there is a tie
 ; zips -- zipcode DB
-(define (getPlaceNameThatAppearsInMostStates zips)
-	"Anytown"
+(define (getStateWithMostZipcodes zips)
+	"AK"
 )
+
+; Count the number of zip codes for one state and add to a list (num, state)
+; find the highest number and return the state
 
 ; Returns the distance between two zip codes.
 ; Use lat/lon. Do some research to compute this.
@@ -171,7 +210,7 @@
 )
 (mydisplay (getZipcodeInfo 45056 zipcodes))
 (mydisplay (getStatesThatContainThisPlace "Oxford" zipcodes))
-(mydisplay (getPlaceNameThatAppearsInMostStates zipcodes))
+(mydisplay (getStateWithMostZipcodes zipcodes))
 (mydisplay (getDistanceBetweenZipCodes zipcodes 45056 48122))
 
 
@@ -187,9 +226,27 @@
 ; lst -- flat list of items
 ; filters -- list of predicates to apply to the individual elements
 (define (filterList lst filters)
-	lst
+	(cond
+		((NULL? lst) '())
+		(((car filters) (car lst)) (cons (car lst) (filterList (cdr lst) filters)))
+		(else (filterList (cdr lst) filters)) 
+	)
+	; runs through each filter in filters
+	;(cond
+	;	((NULL? filters) '())
+	;	(else (filterList (filterHelper lst (car filters)) (cdr filters)))
+	;)
+)
+
+; applies one filter and returns a filtered list
+(define (filterHelper lst filter)
+	(cond
+		((NULL? lst) '())
+		((filter (car lst)) (cons (car lst) (filterHelper (cdr lst) filter)))
+		(else (filterHelper (cdr lst) filter)) 
+	)
 )
 
 (mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS?)))
-(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN?)))
-(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN? LARGE?)))
+;(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN?)))
+;(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN? LARGE?)))
