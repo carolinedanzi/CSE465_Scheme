@@ -181,14 +181,14 @@
 
 ; Add an element to the list if and only if the element does not
 ; already appear in the list
-; TODO: Figure out why I currently need to pass in the original list
 (define (addNoDups element lst)
-	(if (MEMBER? element lst)
+	(if (member element lst)
 		lst
 		(append lst (list element))
 	)
 )
 
+; Unnecessary, since Scheme has its own member function
 (define (MEMBER? element lst)
 	(cond
 		((NULL? lst) #f)
@@ -201,7 +201,14 @@
 ; Return the first state if there is a tie
 ; zips -- zipcode DB
 (define (getStateWithMostZipcodes zips)
-	"AK"
+	(getStateHelper zips (caddar zips) 0)
+)
+
+(define (getStateHelper zips state zipCount)
+	(cond
+		((EQUAL? (caddar zips) state) (getStateHelper (cdr zips) state (+ 1 zipCount)))
+		(else (list zipCount state))
+	)
 )
 
 ; Count the number of zip codes for one state and add to a list (num, state)
@@ -233,27 +240,28 @@
 ; lst -- flat list of items
 ; filters -- list of predicates to apply to the individual elements
 (define (filterList lst filters)
-	(cond
-		((NULL? lst) '())
-		(((car filters) (car lst)) (cons (car lst) (filterList (cdr lst) filters)))
-		(else (filterList (cdr lst) filters)) 
-	)
-	; runs through each filter in filters
 	;(cond
-	;	((NULL? filters) '())
-	;	(else (filterList (filterHelper lst (car filters)) (cdr filters)))
+	;	((NULL? lst) '())
+	;	((eval (list (car filters) (car lst)) user-initial-environment) (cons (car lst) (filterList (cdr lst) filters)))
+	;	(else (filterList (cdr lst) filters)) 
 	;)
+	;(filterHelper lst (car filters))
+	; runs through each filter in filters
+	(cond
+		 ((NULL? filters) '())
+		 (else (filterList (filterHelper lst (car filters)) (cdr filters)))
+	)
 )
 
 ; applies one filter and returns a filtered list
 (define (filterHelper lst filter)
 	(cond
 		((NULL? lst) '())
-		((filter (car lst)) (cons (car lst) (filterHelper (cdr lst) filter)))
+		((eval (list filter (car lst)) user-initial-environment) (cons (car lst) (filterHelper (cdr lst) filter)))
 		(else (filterHelper (cdr lst) filter)) 
 	)
 )
 
 (mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS?)))
-;(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN?)))
-;(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN? LARGE?)))
+(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN?)))
+(mydisplay (filterList '(1 2 3 11 22 33 -1 -2 -3 -11 -22 -33) '(POS? EVEN? LARGE?)))
