@@ -17,35 +17,22 @@
 )
 
 ; Returns the roots of the quadratic formula, given
-; ax^2+bx+c=0
+; ax^2+bx+c=0 (I had help from the textbook)
 (define (quadratic a b c)
 	(cond 
-		((= a 0) "error: cannot divide by zero")
+		; for a line, y = 0 when x = -c / b
+		((= a 0) (list (/ (- 0 c) b)))
 		(else 
 			(LET (
 			(root_part_over_2a 
 				(/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
-			(minus_b_over_2a (/ (- b 0) (* 2 a )))
+			(minus_b_over_2a (/ (- 0 b) (* 2 a )))
 			)
 		(list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a))))
 	)
-	;(let (
-	;	(bOver2a (/ (- 0 b) (* 2 a)))
-	;	(sqrtOver2a (/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
-	;)
-	
-   ; '((/ (+ (- 0 b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a)) 
-	;(/ (- (- 0 b) (sqrt (- (* b b) (* 4 a c)))) (* 2 a)))
-	;(list (+ bOver2a sqrtOver2a) (- bOver2a sqrtOver2a))
-	;)
-	; (LET (
-		; (root_part_over_2a 
-			; (/ (sqrt (- (* b b) (* 4 a c))) (* 2 a)))
-		; (minus_b_over_2a (/ (- b 0) (* 2 a )))
-	; )
-	; (list (+ minus_b_over_2a root_part_over_2a) (- minus_b_over_2a root_part_over_2a)))
 )
 
+(mydisplay (quadratic 2 8 6))
 (mydisplay (quadratic 1 0 0))
 (mydisplay (quadratic 0 1 0)) 
 (mydisplay (quadratic 3 4 2))
@@ -168,7 +155,6 @@
 )
 
 ; Tail-recursive helper function
-; Also, this lists the states in reverse alphabetical order...is that an issue?
 (define (getStatesHelper placeName zips statesList)
 	; cadar zips = the second element in the first nested list, which is the place name
 	; caddar zips = the third element in the first nested list, which is the state name
@@ -188,26 +174,30 @@
 	)
 )
 
-; Unnecessary, since Scheme has its own member function
-(define (MEMBER? element lst)
-	(cond
-		((NULL? lst) #f)
-		((EQUAL? element (car lst)) #t)
-		(else (MEMBER? element (cdr lst)))
-	)
-)
-
 ; Returns the state that contains the most unique zip codes
 ; Return the first state if there is a tie
 ; zips -- zipcode DB
 (define (getStateWithMostZipcodes zips)
-	(getStateHelper zips (caddar zips) 0)
+	;(getZipsOneState zips (caddar zips) 0)
+	;(getZipCount zips (caddar zips) 0)
+	#t
 )
 
-(define (getStateHelper zips state zipCount)
+(define (getZipCount zips state zipCount) 
 	(cond
-		((EQUAL? (caddar zips) state) (getStateHelper (cdr zips) state (+ 1 zipCount)))
-		(else (list zipCount state))
+		((NULL? zips) zipCount)
+		((EQUAL? (caddar zips) state) (getZipCount (cdr zips) state (+ 1 zipCount)))
+		(else zipCount)
+	)
+)
+
+; returns a list (zipCount state) where zipCount is the number 
+; of zip codes in the state
+(define (getZipsOneState zips state zipCount)
+	(if (EQUAL? (caddar zips) state)
+		; as long as we are still in the same state, add one to the zip count
+		(getZipsOneState (cdr zips) state (+ 1 zipCount))
+		(list zipCount state)
 	)
 )
 
@@ -240,16 +230,11 @@
 ; lst -- flat list of items
 ; filters -- list of predicates to apply to the individual elements
 (define (filterList lst filters)
-	;(cond
-	;	((NULL? lst) '())
-	;	((eval (list (car filters) (car lst)) user-initial-environment) (cons (car lst) (filterList (cdr lst) filters)))
-	;	(else (filterList (cdr lst) filters)) 
-	;)
-	;(filterHelper lst (car filters))
-	; runs through each filter in filters
-	(cond
-		 ((NULL? filters) '())
-		 (else (filterList (filterHelper lst (car filters)) (cdr filters)))
+	; Go through the list of filters and apply each to a list using
+	; the helper function
+	(if (NULL? filters) 
+		lst
+		(filterList (filterHelper lst (car filters)) (cdr filters))
 	)
 )
 
