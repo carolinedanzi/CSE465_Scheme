@@ -178,10 +178,17 @@
 ; Return the first state if there is a tie
 ; zips -- zipcode DB
 (define (getStateWithMostZipcodes zips)
-	;(getZipsOneState zips (caddar zips) 0)
-	;(getZipCount zips (caddar zips) 0)
-	(getZipCountList zips (caddar zips) 0)
-	;#t
+	(findMaxState (getZipCountList zips (cadar zips) 0) 0 "")
+)
+
+; searches through a list ((zipCount state) (zipCount state)...) and returns the
+; name of the state with the highest count of zip codes
+(define (findMaxState lst maxCount maxState)
+	(cond
+		((NULL? lst) maxState)
+		((> (caar lst) maxCount) (findMaxState (cdr lst) (caar lst) (cadar lst)))
+		(else (findMaxState (cdr lst) maxCount maxState))
+	)
 )
 
 ; builds a list of (zipCount state) pairs for the entire country
@@ -190,26 +197,6 @@
 		((NULL? zips) '())
 		((EQUAL? (caddar zips) state) (getZipCountList (cdr zips) state (+ 1 zipCount)))
 		(else (cons (list zipCount state) (getZipCountList zips (caddar zips) 0)))
-	)
-)
-
-; finds the total number of zip codes in one state and returns
-; the number as an atom
-(define (getZipCount zips state zipCount) 
-	(cond
-		((NULL? zips) zipCount)
-		((EQUAL? (caddar zips) state) (getZipCount (cdr zips) state (+ 1 zipCount)))
-		(else zipCount)
-	)
-)
-
-; returns a list (zipCount state) where zipCount is the number 
-; of zip codes in the state
-(define (getZipsOneState zips state zipCount)
-	(if (EQUAL? (caddar zips) state)
-		; as long as we are still in the same state, add one to the zip count
-		(getZipsOneState (cdr zips) state (+ 1 zipCount))
-		(list zipCount state)
 	)
 )
 
