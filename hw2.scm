@@ -180,9 +180,21 @@
 (define (getStateWithMostZipcodes zips)
 	;(getZipsOneState zips (caddar zips) 0)
 	;(getZipCount zips (caddar zips) 0)
-	#t
+	(getZipCountList zips (caddar zips) 0)
+	;#t
 )
 
+; builds a list of (zipCount state) pairs for the entire country
+(define (getZipCountList zips state zipCount)
+	(cond 
+		((NULL? zips) '())
+		((EQUAL? (caddar zips) state) (getZipCountList (cdr zips) state (+ 1 zipCount)))
+		(else (cons (list zipCount state) (getZipCountList zips (caddar zips) 0)))
+	)
+)
+
+; finds the total number of zip codes in one state and returns
+; the number as an atom
 (define (getZipCount zips state zipCount) 
 	(cond
 		((NULL? zips) zipCount)
